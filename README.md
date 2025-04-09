@@ -86,9 +86,19 @@ To set up this project, follow these steps in a terminal:
      ```bash
      pip install --upgrade TTS
      ```
-
-
-     
+5. **If PyTorch > 2.6 / Patching TTS**
+- If you get the error below, the TTS package needs to be patched to load the older weights.
+```raise pickle.UnpicklingError(_get_wo_message(str(e))) from None
+_pickle.UnpicklingError: Weights only load failed. This file can still be loaded, to do so you have two options, do those steps only if you trust the source of the checkpoint.
+        (1) In PyTorch 2.6, we changed the default value of the `weights_only` argument in `torch.load` from `False` to `True`. Re-running `torch.load` with `weights_only` set to `False` will likely succeed, but it can result in arbitrary code execution. Do it only if you got the file from a trusted source.
+        (2) Alternatively, to load with `weights_only=True` please check the recommended steps in the following error message.
+        WeightsUnpickler error: Unsupported global: GLOBAL TTS.tts.configs.xtts_config.XttsConfig was not an allowed global by default. Please use `torch.serialization.add_safe_globals([XttsConfig])` or the `torch.serialization.safe_globals([XttsConfig])` context manager to allowlist this global if you trust this class/function.
+```
+- Go to the ``.venv/Lib/site-packages/TTS/utils/io.py`` file.
+- On line 51 and 54, add ``weights_only=False`` to the ``return torch.load(f, map_location=map_location, **kwargs)``
+- It should result in ``return torch.load(f, map_location=map_location, weights_only=False, **kwargs)`` on both lines.
+- app.py should now run.
+- Issue can be found at https://github.com/BoltzmannEntropy/xtts2-ui/issues/42
 
 After completing these steps, your setup should be complete and you can start using the project.
 
